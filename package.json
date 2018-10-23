@@ -1,0 +1,26 @@
+{
+  "name": "private-torrent-tracker-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon ./dist/",
+    "develop": "tsc -w"
+  },
+  "author": "Aitor González Fernández <info@aitorgf.com>",
+  "private": true,
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "request": "^2.88.0",
+    "telegraf": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/cheerio": "^0.22.9",
+    "@types/node": "^10.12.0",
+    "@types/node-telegram-bot-api": "^0.30.3",
+    "@types/request": "^2.47.1",
+    "nodemon": "^1.18.4"
+  }
+}
