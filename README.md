@@ -1,3 +1,3 @@
 # Private Torrent Tracker
 
-Code of the [Private Torrent Tracker](t.me/open_torrent_tracker_bot) bot of Telegram.
+Source code for Telegram's "[Private Torrent Tracker](https://t.me/open_torrent_tracker_bot)" bot.
