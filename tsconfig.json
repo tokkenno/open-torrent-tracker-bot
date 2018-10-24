@@ -4,7 +4,10 @@
     "target": "es6",
     "noImplicitAny": false,
     "sourceMap": false,
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "experimentalDecorators": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true
   },
   "include": [
     "./src",

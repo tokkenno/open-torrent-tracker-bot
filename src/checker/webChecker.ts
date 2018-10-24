@@ -1,5 +1,6 @@
 import * as request from "request";
 import {Checker} from "./checker";
+import * as cheerio from "cheerio";
 
 export abstract class WebChecker extends Checker {
     protected static getUrl(url: string): Promise<string> {
