@@ -1,11 +1,12 @@
-import {Column, DataType, HasMany, Model, Table} from "sequelize-typescript";
+import {BelongsToMany, Column, DataType, Model, Table} from "sequelize-typescript";
 import Category from "./category";
+import TrackerCategories from "./trackerCategories";
 
 @Table({
     timestamps: true,
 })
 export default class Tracker extends Model<Tracker> {
-    @Column({type: DataType.STRING})
+    @Column({type: DataType.STRING, unique: true})
     name: string;
 
     @Column({type: DataType.STRING})
@@ -14,7 +15,7 @@ export default class Tracker extends Model<Tracker> {
     @Column({type: DataType.STRING})
     description: string;
 
-    @HasMany(() => Category)
+    @BelongsToMany(() => Category, () => TrackerCategories)
     categories: Array<Category>;
 
     @Column({type: DataType.DATE})

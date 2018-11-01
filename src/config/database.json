@@ -3,6 +3,5 @@
   "dialect": "sqlite",
   "username": "root",
   "password": "",
-  "storage": "bot.db",
-  "modelPaths": ["./models"]
+  "storage": "bot.db"
 }

@@ -1,7 +1,7 @@
-import {Column, DataType, HasMany, Model, Table} from "sequelize-typescript";
+import {BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, Model, Table} from "sequelize-typescript";
 import Language from "./language";
 import Category from "./category";
-import Tracker from "./tracker";
+import UserCategories from "./userCategories";
 
 @Table({
     timestamps: true,
@@ -10,12 +10,16 @@ export default class User extends Model<User> {
     @Column({type: DataType.STRING})
     username: string;
 
-    @HasMany(() => Language)
+    @BelongsTo(() => Language)
     subscribe_lang: Array<Language>;
 
-    @HasMany(() => Category)
-    subscribe_category: Array<Category>;
+    @Column({type: DataType.INTEGER})
+    @ForeignKey(() => Language)
+    subscribe_lang_id: number;
 
-    @HasMany(() => Tracker)
-    subscribe_tracker: Array<Tracker>;
+    @BelongsToMany(() => Category, () => UserCategories)
+    subscribe_category: Array<Category>;
+/*
+    @BelongsTo(() => Tracker)
+    subscribe_tracker: Array<Tracker>;*/
 }

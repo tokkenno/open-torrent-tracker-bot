@@ -2,6 +2,7 @@ import {Checker} from "./checker";
 import * as FS from "fs";
 import * as Path from "path";
 import Timeout = NodeJS.Timeout;
+import Tracker from "../models/tracker";
 
 export class ActiveCheckerManager {
     private readonly parent: CheckerManager;
@@ -29,7 +30,6 @@ export class ActiveCheckerManager {
     }
 
     private async check(path: string) {
-        console.log("llega")
         let instances = CheckerManager.loadInstances(path);
 
         if (instances.length > 0) {
@@ -38,8 +38,20 @@ export class ActiveCheckerManager {
             for (let instance of instances) {
                 try {
                     console.log("Updating the tracker '" + instance.name + "' (" + instance.language + ")...");
-                    let result = await instance.isOpen()
-console.log(result)
+                    let result = await instance.isOpen();
+
+                    let trackerStore = await Tracker.findOne({where: {name: instance.name}});
+
+                    if (trackerStore == null) {
+                        trackerStore = new Tracker();
+                        trackerStore.name = instance.name;
+                    }
+
+                    if (result.online) {
+                        trackerStore.lastSeen = new Date(Date.now());
+                    }
+
+                    await trackerStore.save({});
                 } catch (err) {
                     console.error("The check of the tracker '" + instance.name + "' (" + instance.language + ") has failed.\n", err);
                 }
