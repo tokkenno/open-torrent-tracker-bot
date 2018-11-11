@@ -63,5 +63,6 @@ typings/
 # IDE's and editors
 .idea
 
-/dist
-/config/telegram.json
+# Golang
+.vendor-new
+vendor
