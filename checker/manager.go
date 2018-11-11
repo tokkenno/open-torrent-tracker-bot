@@ -131,3 +131,13 @@ func (manager *manager) ListLanguages() []string {
 
 	return utils.StringUnique(languages)
 }
+
+func (manager *manager) ListCategories() []string {
+	var categories []string
+
+	for _, tracker := range manager.trackers {
+		categories = append(categories, tracker.GetCategories()...)
+	}
+
+	return utils.StringUnique(categories)
+}

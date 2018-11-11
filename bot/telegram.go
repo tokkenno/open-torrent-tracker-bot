@@ -65,11 +65,8 @@ func (bot *bot) ListenAsync() error {
 					case "subscribe":
 						bot.handleSubscribe(update.Message)
 						break
-					case "subscribe_language":
-						bot.handleSubscribeLanguage(update.Message)
-						break
-					case "subscribe_category":
-						bot.handleSubscribeCategory(update.Message)
+					case "subscriptions":
+						bot.handleSubscriptions(update.Message)
 						break
 					default:
 						bot.handleUnknown(update.Message)
@@ -82,6 +79,8 @@ func (bot *bot) ListenAsync() error {
 						switch context {
 						case "subscribe":
 							bot.handleSubscribe(update.Message)
+						case "subscribe_language_code":
+							bot.handleSubscribeLanguageCode(update.Message)
 						}
 					} else {
 						msg := tgbotapi.NewMessage(update.Message.Chat.ID, language.Localize(update.Message.From.LanguageCode, language.PhraseIDontUnderstand))
@@ -141,23 +140,33 @@ func (bot *bot) handleSubscribe(message *tgbotapi.Message) {
 }
 
 func (bot *bot) handleSubscribeLanguage(message *tgbotapi.Message) {
-	if len(message.Command()) > 0 {
-		bot.handleSubscribeLanguageLang(message, message.CommandArguments())
-	} else if bot.contexts[message.From.ID] == "subscribe_language" {
-		bot.handleSubscribeLanguageLang(message, message.Text)
-	} else {
-		msg := tgbotapi.NewMessage(message.Chat.ID, language.Localize(message.From.LanguageCode, language.PhraseInsertLanguage) + strings.Join(checker.GetManager().ListLanguages(), ", "))
-		msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
-		bot.api.Send(msg)
-	}
-}
-
-func (bot *bot) handleSubscribeLanguageLang(message *tgbotapi.Message, lang string) {
+	bot.contexts[message.From.ID] = "subscribe_language_code"
 	msg := tgbotapi.NewMessage(message.Chat.ID, language.Localize(message.From.LanguageCode, language.PhraseInsertLanguage) + strings.Join(checker.GetManager().ListLanguages(), ", "))
 	msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
 	bot.api.Send(msg)
 }
 
-func (bot *bot) handleSubscribeCategory(message *tgbotapi.Message) {
+func (bot *bot) handleSubscribeLanguageCode(message *tgbotapi.Message) {
+	msg := tgbotapi.NewMessage(message.Chat.ID, language.Localize(message.From.LanguageCode, language.PhraseLanguageSubscribed))
+	msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
+	bot.api.Send(msg)
+}
 
+func (bot *bot) handleSubscribeCategory(message *tgbotapi.Message) {
+	bot.contexts[message.From.ID] = "subscribe_category_code"
+	msg := tgbotapi.NewMessage(message.Chat.ID, language.Localize(message.From.LanguageCode, language.PhraseInsertCategory) + strings.Join(checker.GetManager().ListCategories(), ", "))
+	msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
+	bot.api.Send(msg)
+}
+
+func (bot *bot) handleSubscribeCategoryCode(message *tgbotapi.Message) {
+	msg := tgbotapi.NewMessage(message.Chat.ID, language.Localize(message.From.LanguageCode, language.PhraseCategorySubscribed))
+	msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
+	bot.api.Send(msg)
+}
+
+func (bot *bot) handleSubscriptions(message *tgbotapi.Message) {
+	msg := tgbotapi.NewMessage(message.Chat.ID, language.Localize(message.From.LanguageCode, language.PhraseInsertLanguage))
+	msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
+	bot.api.Send(msg)
 }
