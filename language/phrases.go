@@ -1,5 +1,7 @@
 package language
 
+import "fmt"
+
 var PhraseChooseSubscription = []translate{
 	translate{ Lang: "en", Text: "What do you want to subscribe?" },
 	translate{ Lang: "es", Text: "¿A que deseas suscribirte?" },
@@ -27,6 +29,35 @@ var PhraseInsertCategory = []translate{
 
 var PhraseCategorySubscribed = []translate{
 	translate{ Lang: "en", Text: "Well! You are now subscribed to the trackers of this category. You can affine more the notifications subscribing you to concrete language." },
-	translate{ Lang: "es", Text: "¿A que categoría te quieres suscribir? (Envía el nombre, ejemplo: movies. Pon un - delante para borrar la suscripción, ejemplo: -movies). Las categorías disponibles son: " },
+	translate{ Lang: "es", Text: "¡Bien! Ahora estás suscrito a los trackers de esta categoría. Puedes afinar más las notificacions suscribiendote a un lenguaje o lenguajes concretos." },
 }
 
+var PhraseInternalError = []translate{
+	translate{ Lang: "en", Text: fmt.Sprintf("Wow, something went wrong. Tell us what you were doing in %s to see if we can help you.", IssueUrl) },
+	translate{ Lang: "es", Text: fmt.Sprintf("Wow, algo ha ido mal. Cuentanos que estábas haciendo en %s a ver si podemos ayudarte.", IssueUrl) },
+}
+
+var PhraseNoSubscriptions = []translate{
+	translate{ Lang: "en", Text: "Looks like you haven't subscribed to any notification yet. Try the /subscribe command." },
+	translate{ Lang: "es", Text: "Parece que aún no te has suscrito a ninguna notificación. Prueba con el comando /subscribe." },
+}
+
+var PhraseUserSubscriptionsCategories = []translate{
+	translate{ Lang: "en", Text: "You are subscribed to the categories: `%s`." },
+	translate{ Lang: "es", Text: "Estás suscrito a las siguientes categorías: `%s`." },
+}
+
+var PhraseUserSubscriptionsLanguages = []translate{
+	translate{ Lang: "en", Text: "You are subscribed to the languages: `%s`." },
+	translate{ Lang: "es", Text: "Estás suscrito a las siguientes idiomas: `%s`." },
+}
+
+var PhraseCategoryUnrecognized = []translate{
+	translate{ Lang: "en", Text: "I'm sorry, I don't recognize this category." },
+	translate{ Lang: "es", Text: "Lo siento, no reconozco esa categoría." },
+}
+
+var PhraseLanguageUnrecognized = []translate{
+	translate{ Lang: "en", Text: "I'm sorry, I don't recognize this language." },
+	translate{ Lang: "es", Text: "Lo siento, no reconozco este idioma." },
+}

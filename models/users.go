@@ -4,9 +4,14 @@ import (
 	"github.com/globalsign/mgo/bson"
 )
 
+const (
+	UserRepositoryName = "tracker"
+)
+
 type User struct {
 	Id         bson.ObjectId `bson:"_id,omitempty"`
-	TelegramId uint64        `bson:"telegram_id"`
+	TelegramId int           `bson:"telegram_id"`
+	Name       string        `bson:"username"`
 	Languages  []string      `bson:"languages"`
 	Categories []string      `bson:"categories"`
 }
