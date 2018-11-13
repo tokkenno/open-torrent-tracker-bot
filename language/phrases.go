@@ -43,13 +43,13 @@ var PhraseNoSubscriptions = []translate{
 }
 
 var PhraseUserSubscriptionsCategories = []translate{
-	translate{ Lang: "en", Text: "You are subscribed to the categories: `%s`." },
-	translate{ Lang: "es", Text: "Estás suscrito a las siguientes categorías: `%s`." },
+	translate{ Lang: "en", Text: "You are subscribed to the categories: %s." },
+	translate{ Lang: "es", Text: "Estás suscrito a las siguientes categorías: %s." },
 }
 
 var PhraseUserSubscriptionsLanguages = []translate{
-	translate{ Lang: "en", Text: "You are subscribed to the languages: `%s`." },
-	translate{ Lang: "es", Text: "Estás suscrito a las siguientes idiomas: `%s`." },
+	translate{ Lang: "en", Text: "You are subscribed to the languages: %s." },
+	translate{ Lang: "es", Text: "Estás suscrito a las siguientes idiomas: %s." },
 }
 
 var PhraseCategoryUnrecognized = []translate{
@@ -60,4 +60,24 @@ var PhraseCategoryUnrecognized = []translate{
 var PhraseLanguageUnrecognized = []translate{
 	translate{ Lang: "en", Text: "I'm sorry, I don't recognize this language." },
 	translate{ Lang: "es", Text: "Lo siento, no reconozco este idioma." },
+}
+
+var PhraseLanguageUnsubscribed = []translate{
+	translate{ Lang: "en", Text: "Ok, I'll stop warning you about trackers of this language." },
+	translate{ Lang: "es", Text: "Vale, dejaré de avisarte sobre trackers de este idioma." },
+}
+
+var PhraseCategoryUnsubscribed = []translate{
+	translate{ Lang: "en", Text: "Ok, I'll stop warning you about trackers of this category." },
+	translate{ Lang: "es", Text: "Vale, dejaré de avisarte sobre trackers de esta categoría." },
+}
+
+var PhraseNoSubscribed = []translate{
+	translate{ Lang: "en", Text: "Ups, looks like we didn't have any of your subscriptions anymore." },
+	translate{ Lang: "es", Text: "Ups, parece que ya no teníamos ninguna suscripción tuya." },
+}
+
+var PhraseActionsCanceled = []translate{
+	translate{ Lang: "en", Text: "All actions has cancelled." },
+	translate{ Lang: "es", Text: "Se han cancelado todas las acciones." },
 }

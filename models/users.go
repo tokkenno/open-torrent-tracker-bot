@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	UserRepositoryName = "tracker"
+	UserRepositoryName = "user"
 )
 
 type User struct {

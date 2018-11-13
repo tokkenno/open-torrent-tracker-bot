@@ -21,3 +21,13 @@ func StringSliceContains(slice []string, item string) bool {
 	_, ok := set[item]
 	return ok
 }
+
+func StringSliceFilter(slice []string, item string) []string {
+	vsf := make([]string, 0)
+	for _, v := range slice {
+		if v != item {
+			vsf = append(vsf, v)
+		}
+	}
+	return vsf
+}

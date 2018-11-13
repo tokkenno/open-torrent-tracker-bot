@@ -74,6 +74,9 @@ func (bot *bot) ListenAsync() error {
 					case "subscriptions":
 						bot.handleSubscriptions(update.Message)
 						break
+					case "cancel":
+						bot.handleCancel(update.Message)
+						break
 					default:
 						bot.handleUnknown(update.Message)
 						break
@@ -121,6 +124,14 @@ func (bot *bot) handleUnknown(message *tgbotapi.Message) {
 	bot.api.Send(msg)
 }
 
+func (bot *bot) handleCancel(message *tgbotapi.Message) {
+	bot.contexts[message.From.ID] = ""
+
+	msg := tgbotapi.NewMessage(message.Chat.ID, language.Localize(message.From.LanguageCode, language.PhraseActionsCanceled))
+	msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
+	bot.api.Send(msg)
+}
+
 func (bot *bot) handleSubscribe(message *tgbotapi.Message) {
 	if len(message.Command()) > 0 {
 		bot.contexts[message.From.ID] = "subscribe"
@@ -155,10 +166,35 @@ func (bot *bot) handleSubscribeLanguage(message *tgbotapi.Message) {
 }
 
 func (bot *bot) handleSubscribeLanguageCode(message *tgbotapi.Message) {
-	lenguagesAvailable := checker.GetManager().ListLanguages()
+	languagesAvailable := checker.GetManager().ListLanguages()
 	languageCode := strings.Split(message.Text, " ")[0]
 
-	if utils.StringSliceContains(lenguagesAvailable, languageCode) {
+	if len(languageCode) == 3 && utils.StringSliceContains(languagesAvailable, strings.TrimLeft(languageCode, "-")) {
+		languageCode = strings.TrimLeft(languageCode, "-")
+
+		dbRepo := database.GetRepository(models.UserRepositoryName)
+
+		userDocument := models.User{}
+		err := dbRepo.Find(bson.M{"telegram_id": message.From.ID}).One(&userDocument)
+
+		if err == nil {
+			userDocument.Languages = utils.StringSliceFilter(userDocument.Languages, languageCode)
+			err = dbRepo.UpdateId(userDocument.Id, userDocument)
+
+			if err != nil {
+				logger.Errorf("Error while update the data of the user: %v => %s", userDocument.TelegramId, userDocument.Name)
+				bot.handleInternalError(message)
+			} else {
+				msg := tgbotapi.NewMessage(message.Chat.ID, language.Localize(message.From.LanguageCode, language.PhraseLanguageUnsubscribed))
+				msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
+				bot.api.Send(msg)
+			}
+		} else {
+			msg := tgbotapi.NewMessage(message.Chat.ID, language.Localize(message.From.LanguageCode, language.PhraseNoSubscribed))
+			msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
+			bot.api.Send(msg)
+		}
+	} else if utils.StringSliceContains(languagesAvailable, languageCode) {
 		dbRepo := database.GetRepository(models.UserRepositoryName)
 
 		userDocument := models.User{}
@@ -180,9 +216,9 @@ func (bot *bot) handleSubscribeLanguageCode(message *tgbotapi.Message) {
 				return
 			}
 		} else {
-			userDocument.Languages = append(userDocument.Languages, languageCode)
+			userDocument.Languages = utils.StringUnique(append(userDocument.Languages, languageCode))
 
-			_, err = dbRepo.UpsertId(userDocument.Id, userDocument)
+			err = dbRepo.UpdateId(userDocument.Id, userDocument)
 
 			if err != nil {
 				logger.Errorf("Error while update the data of the user: %v => %s", userDocument.TelegramId, userDocument.Name)
@@ -212,7 +248,32 @@ func (bot *bot) handleSubscribeCategoryCode(message *tgbotapi.Message) {
 	categoriesAvailable := checker.GetManager().ListCategories()
 	categoryCode := strings.Split(message.Text, " ")[0]
 
-	if utils.StringSliceContains(categoriesAvailable, categoryCode) {
+	if strings.Index(categoryCode, "-") == 0 && utils.StringSliceContains(categoriesAvailable, strings.TrimLeft(categoryCode, "-")) {
+		categoryCode = strings.TrimLeft(categoryCode, "-")
+
+		dbRepo := database.GetRepository(models.UserRepositoryName)
+
+		userDocument := models.User{}
+		err := dbRepo.Find(bson.M{"telegram_id": message.From.ID}).One(&userDocument)
+
+		if err == nil {
+			userDocument.Categories = utils.StringSliceFilter(userDocument.Categories, categoryCode)
+			err = dbRepo.UpdateId(userDocument.Id, userDocument)
+
+			if err != nil {
+				logger.Errorf("Error while update the data of the user: %v => %s", userDocument.TelegramId, userDocument.Name)
+				bot.handleInternalError(message)
+			} else {
+				msg := tgbotapi.NewMessage(message.Chat.ID, language.Localize(message.From.LanguageCode, language.PhraseCategoryUnsubscribed))
+				msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
+				bot.api.Send(msg)
+			}
+		} else {
+			msg := tgbotapi.NewMessage(message.Chat.ID, language.Localize(message.From.LanguageCode, language.PhraseNoSubscribed))
+			msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
+			bot.api.Send(msg)
+		}
+	} else if utils.StringSliceContains(categoriesAvailable, categoryCode) {
 		dbRepo := database.GetRepository(models.UserRepositoryName)
 
 		userDocument := models.User{}
@@ -234,7 +295,7 @@ func (bot *bot) handleSubscribeCategoryCode(message *tgbotapi.Message) {
 				return
 			}
 		} else {
-			userDocument.Categories = append(userDocument.Categories, categoryCode)
+			userDocument.Categories = utils.StringUnique(append(userDocument.Categories, categoryCode))
 
 			_, err = dbRepo.UpsertId(userDocument.Id, userDocument)
 
