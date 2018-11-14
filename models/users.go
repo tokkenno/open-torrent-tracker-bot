@@ -9,9 +9,10 @@ const (
 )
 
 type User struct {
-	Id         bson.ObjectId `bson:"_id,omitempty"`
-	TelegramId int           `bson:"telegram_id"`
-	Name       string        `bson:"username"`
-	Languages  []string      `bson:"languages"`
-	Categories []string      `bson:"categories"`
+	Id           bson.ObjectId `bson:"_id,omitempty"`
+	TelegramId   int64         `bson:"telegram_id"`
+	Name         string        `bson:"username"`
+	UserLanguage string        `bson:"user_language"`
+	Languages    []string      `bson:"languages"`
+	Categories   []string      `bson:"categories"`
 }

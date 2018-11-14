@@ -14,11 +14,12 @@ func main() {
 	var buf1 bytes.Buffer
 	logger.Init("torrent-tracker-bot", true, false, &buf1)
 
-	botInstance := bot.NewTelegramBot()
+	botInstance := bot.GetInstance()
 	err := botInstance.ListenAsync()
 
 	if err == nil {
 		manager := checker.GetManager()
+		manager.SetNotifier(botInstance)
 		manager.RunIntervalCheck(time.Minute * 15)
 
 		http.HandleFunc("/status", controllers.GetStatus)

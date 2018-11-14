@@ -53,7 +53,7 @@ func (tracker *DivTeamCom) Check() *check.Result {
 		} else {
 			status = models.RegistrationMaybe
 		}
-
+status = models.RegistrationMaybe
 		return &check.Result{
 			IsOnline: true,
 			Status:   status,

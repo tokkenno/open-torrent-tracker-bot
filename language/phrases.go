@@ -81,3 +81,13 @@ var PhraseActionsCanceled = []translate{
 	translate{ Lang: "en", Text: "All actions has cancelled." },
 	translate{ Lang: "es", Text: "Se han cancelado todas las acciones." },
 }
+
+var PhraseTrackerOnline = []translate{
+	translate{ Lang: "en", Text: "Hey! It seems that the %s tracker registrations are open. Try to sign up: %s." },
+	translate{ Lang: "es", Text: "¡Ey! Parece que los registros del tracker %s estan abiertos. Intenta registrarte: %s." },
+}
+
+var PhraseTrackerMaybeOnline = []translate{
+	translate{ Lang: "en", Text: "Hi, I've detected that the %s tracker could has open registrations. Try to sign up: %s." },
+	translate{ Lang: "es", Text: "Hola, he detectado que el tracker %s podría haber abierto los registros. Intenta registrarte: %s." },
+}

@@ -18,11 +18,16 @@ import (
 
 type bot struct {
 	api      *tgbotapi.BotAPI
-	contexts map[int]string
+	contexts map[int64]string
 }
 
-func NewTelegramBot() *bot {
-	return &bot{contexts: make(map[int]string)}
+var botInstance *bot
+
+func GetInstance() *bot {
+	if botInstance == nil {
+		botInstance = &bot{contexts: make(map[int64]string)}
+	}
+	return botInstance
 }
 
 func (bot *bot) ListenAsync() error {
@@ -38,8 +43,8 @@ func (bot *bot) ListenAsync() error {
 		}
 	}
 
-	if len(token) == 0 {
-		return errors.New("the telegram bot can't start if the token is undefined")
+	if len(token) != 45 {
+		return errors.New("the telegram bot can't start if the token is undefined or invalid")
 	}
 
 	botApi, err := tgbotapi.NewBotAPI(token)
@@ -82,7 +87,7 @@ func (bot *bot) ListenAsync() error {
 						break
 					}
 				} else {
-					context, hasContext := bot.contexts[update.Message.From.ID]
+					context, hasContext := bot.contexts[update.Message.Chat.ID]
 
 					if hasContext && len(context) > 0 {
 						switch context {
@@ -106,6 +111,12 @@ func (bot *bot) ListenAsync() error {
 	return nil
 }
 
+func (bot *bot) SendMessage(id int64, message string, languageCode string) {
+	msg := tgbotapi.NewMessage(id, message)
+	msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
+	bot.api.Send(msg)
+}
+
 func (bot *bot) handleStart(message *tgbotapi.Message) {
 	msg := tgbotapi.NewMessage(message.Chat.ID, language.Localize(message.From.LanguageCode, language.MessageCommandStart))
 	msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
@@ -125,7 +136,7 @@ func (bot *bot) handleUnknown(message *tgbotapi.Message) {
 }
 
 func (bot *bot) handleCancel(message *tgbotapi.Message) {
-	bot.contexts[message.From.ID] = ""
+	bot.contexts[message.Chat.ID] = ""
 
 	msg := tgbotapi.NewMessage(message.Chat.ID, language.Localize(message.From.LanguageCode, language.PhraseActionsCanceled))
 	msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
@@ -134,7 +145,7 @@ func (bot *bot) handleCancel(message *tgbotapi.Message) {
 
 func (bot *bot) handleSubscribe(message *tgbotapi.Message) {
 	if len(message.Command()) > 0 {
-		bot.contexts[message.From.ID] = "subscribe"
+		bot.contexts[message.Chat.ID] = "subscribe"
 
 		subscribeKeyboard := tgbotapi.NewReplyKeyboard(
 			tgbotapi.NewKeyboardButtonRow(
@@ -151,7 +162,7 @@ func (bot *bot) handleSubscribe(message *tgbotapi.Message) {
 	} else if message.Text == language.Localize(message.From.LanguageCode, language.WordLanguage) {
 		bot.handleSubscribeLanguage(message)
 	} else {
-		bot.contexts[message.From.ID] = ""
+		bot.contexts[message.Chat.ID] = ""
 		msg := tgbotapi.NewMessage(message.Chat.ID, language.Localize(message.From.LanguageCode, language.PhraseIDontUnderstand))
 		msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
 		bot.api.Send(msg)
@@ -159,7 +170,7 @@ func (bot *bot) handleSubscribe(message *tgbotapi.Message) {
 }
 
 func (bot *bot) handleSubscribeLanguage(message *tgbotapi.Message) {
-	bot.contexts[message.From.ID] = "subscribe_language_code"
+	bot.contexts[message.Chat.ID] = "subscribe_language_code"
 	msg := tgbotapi.NewMessage(message.Chat.ID, language.Localize(message.From.LanguageCode, language.PhraseInsertLanguage)+strings.Join(checker.GetManager().ListLanguages(), ", "))
 	msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
 	bot.api.Send(msg)
@@ -175,7 +186,7 @@ func (bot *bot) handleSubscribeLanguageCode(message *tgbotapi.Message) {
 		dbRepo := database.GetRepository(models.UserRepositoryName)
 
 		userDocument := models.User{}
-		err := dbRepo.Find(bson.M{"telegram_id": message.From.ID}).One(&userDocument)
+		err := dbRepo.Find(bson.M{"telegram_id": message.Chat.ID}).One(&userDocument)
 
 		if err == nil {
 			userDocument.Languages = utils.StringSliceFilter(userDocument.Languages, languageCode)
@@ -198,11 +209,11 @@ func (bot *bot) handleSubscribeLanguageCode(message *tgbotapi.Message) {
 		dbRepo := database.GetRepository(models.UserRepositoryName)
 
 		userDocument := models.User{}
-		err := dbRepo.Find(bson.M{"telegram_id": message.From.ID}).One(&userDocument)
+		err := dbRepo.Find(bson.M{"telegram_id": message.Chat.ID}).One(&userDocument)
 
 		if err != nil {
 			userDocument = models.User{
-				TelegramId: message.From.ID,
+				TelegramId: message.Chat.ID,
 				Name:       message.From.UserName,
 				Categories: []string{},
 				Languages:  []string{languageCode},
@@ -238,7 +249,7 @@ func (bot *bot) handleSubscribeLanguageCode(message *tgbotapi.Message) {
 }
 
 func (bot *bot) handleSubscribeCategory(message *tgbotapi.Message) {
-	bot.contexts[message.From.ID] = "subscribe_category_code"
+	bot.contexts[message.Chat.ID] = "subscribe_category_code"
 	msg := tgbotapi.NewMessage(message.Chat.ID, language.Localize(message.From.LanguageCode, language.PhraseInsertCategory)+strings.Join(checker.GetManager().ListCategories(), ", "))
 	msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
 	bot.api.Send(msg)
@@ -254,7 +265,7 @@ func (bot *bot) handleSubscribeCategoryCode(message *tgbotapi.Message) {
 		dbRepo := database.GetRepository(models.UserRepositoryName)
 
 		userDocument := models.User{}
-		err := dbRepo.Find(bson.M{"telegram_id": message.From.ID}).One(&userDocument)
+		err := dbRepo.Find(bson.M{"telegram_id": message.Chat.ID}).One(&userDocument)
 
 		if err == nil {
 			userDocument.Categories = utils.StringSliceFilter(userDocument.Categories, categoryCode)
@@ -277,11 +288,11 @@ func (bot *bot) handleSubscribeCategoryCode(message *tgbotapi.Message) {
 		dbRepo := database.GetRepository(models.UserRepositoryName)
 
 		userDocument := models.User{}
-		err := dbRepo.Find(bson.M{"telegram_id": message.From.ID}).One(&userDocument)
+		err := dbRepo.Find(bson.M{"telegram_id": message.Chat.ID}).One(&userDocument)
 
 		if err != nil {
 			userDocument = models.User{
-				TelegramId: message.From.ID,
+				TelegramId: message.Chat.ID,
 				Name:       message.From.UserName,
 				Categories: []string{categoryCode},
 				Languages:  []string{},
@@ -320,7 +331,7 @@ func (bot *bot) handleSubscriptions(message *tgbotapi.Message) {
 	dbRepo := database.GetRepository(models.UserRepositoryName)
 
 	userDocument := models.User{}
-	err := dbRepo.Find(bson.M{"telegram_id": message.From.ID}).One(&userDocument)
+	err := dbRepo.Find(bson.M{"telegram_id": message.Chat.ID}).One(&userDocument)
 
 	if err == nil && userDocument.Categories != nil && len(userDocument.Categories) > 0 || userDocument.Languages != nil && len(userDocument.Languages) > 0 {
 		if err == nil && userDocument.Categories != nil && len(userDocument.Categories) > 0 {
