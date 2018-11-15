@@ -13,6 +13,8 @@ services:
     depends_on:
     - "db"
     restart: always
+    labels:
+      - com.centurylinklabs.watchtower.enable="true"
   db:
     image: mongo:latest
     volumes:
@@ -21,6 +23,18 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
     restart: always
+    labels:
+    - com.centurylinklabs.watchtower.enable="true"
+  updater:
+    image: v2tec/watchtower
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - updater:/config.json
+    command: --interval 3600 --label-enable
+    restart: always
+    labels:
+    - com.centurylinklabs.watchtower.enable="true"
 
 volumes:
   database:
+  updater:
